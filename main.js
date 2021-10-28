@@ -10,7 +10,7 @@ let color = {
 
 
 /**
- *
+ * Get XML tags in string by svg full path
  * @param {string} path
  * @return {Promise<string>}
  */
@@ -25,6 +25,12 @@ const getSvgText = async (path) => {
     });
 }
 
+/**
+ * Covert hex to rgba format
+ * @param {string} hex
+ * @param {number} alpha
+ * @return {`rgba(${*},${*},${*},${alpha})`}
+ */
 const hex2rgba = (hex, alpha = 1) => {
     const [r, g, b] = hex.match(/\w\w/g).map(x => parseInt(x, 16));
     return `rgba(${r},${g},${b},${alpha})`;
@@ -69,7 +75,7 @@ color = new Proxy(color, {
         if (prop in target) {
             return target[prop];
         } else {
-            return undefined; // значение по умолчанию
+            return undefined;
         }
     }
 });
