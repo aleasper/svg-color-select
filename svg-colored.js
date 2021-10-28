@@ -18,7 +18,7 @@ class SvgColored extends HTMLElement {
             }
         });
     }
-    async init(path) {
+    async initSVGXML(path) {
         this.svgXML = await this.getSvgText(path);
     }
 
@@ -44,40 +44,18 @@ class SvgColored extends HTMLElement {
         }
     }
 
-    render() {
-        if (!this.inited) {
-            this.inited = true;
-            this.init(this.getAttribute('path')).then(() => {
-                this.innerHTML = this.svgXML;
-                this.DOMLoaded = true;
-                for (const child of this.childNodes) {
-                    if (child instanceof SVGElement) {
-                        console.log(child);
-                        this.changeSvgColor(child, this.getAttribute('color'));
-                        break;
-                    }
-                }
-            });
-            return;
-        }
-        if (this.DOMLoaded) {
-            for (const child of this.childNodes) {
-                if (child instanceof SVGElement) {
-                    this.changeSvgColor(child, this.getAttribute('color'));
-                    break;
-                }
-            }
-        }
-    }
-
     connectedCallback() {
         // браузер вызывает этот метод при добавлении элемента в документ
         // (может вызываться много раз, если элемент многократно добавляется/удаляется)
         console.log('connectedCallback');
-        if (!this.rendered) {
-            this.rendered = true;
-            this.render();
-        }
+        this.initSVGXML(this.getAttribute('path')).then(() => {
+            this.innerHTML = this.svgXML;
+            for (const child of this.childNodes) {
+                if (child instanceof SVGElement) {
+                    this.changeSvgColor(child, this.getAttribute('color'));
+                }
+            }
+        });
     }
 
     disconnectedCallback() {
@@ -90,9 +68,14 @@ class SvgColored extends HTMLElement {
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
-        console.log('attributeChangedCallback');
         // вызывается при изменении одного из перечисленных выше атрибутов
-        this.render();
+        if (this.innerHTML.length !== 0) {
+            for (const child of this.childNodes) {
+                if (child instanceof SVGElement) {
+                    this.changeSvgColor(child, this.getAttribute('color'));
+                }
+            }
+        }
     }
 
     adoptedCallback() {
@@ -103,12 +86,15 @@ class SvgColored extends HTMLElement {
 
 customElements.define("svg-colored", SvgColored);
 
-// setTimeout(() => {
-//     document.getElementById('test').setAttribute('color', '#000000');
-// }, 3000)
 
 ['input'].forEach( evt =>
     document.getElementById('image-color-picker').addEventListener(evt, (event, v) => {
         document.getElementById('test').setAttribute('color', event.target.value);
+    }, false)
+);
+
+['input'].forEach( evt =>
+    document.getElementById('image-color-picker2').addEventListener(evt, (event, v) => {
+        document.getElementById('test2').setAttribute('color', event.target.value);
     }, false)
 );
